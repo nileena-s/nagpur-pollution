@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>river-tracker</title>
+  <title>nagpur-pollution</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta charset="utf-8">
 
@@ -25,42 +25,12 @@
   <style>
   #map { position: absolute; width:690px; height:780px; }
   #map-title { position: relative; margin-top: 10px; margin-left: 50px; float: left; background: white; border: 2px solid rgba(0,0,0,0.2); padding: 6px 8px; font-family: Helvetica; font-weight: bold; font-size: 24px; z-index: 800; }  
-  radio { position: relative; margin-top: 10px; }
       
   </style>
   
 </head>
 <body>
-  
-    <!-- Button -->
-  <div class="btn-group">
-  <!--<button type="button" id="all" class="btn btn-primary">All Water Stations</button>
-  <button type="button" id="classC" class="btn btn-primary">Class C</button>
-  <button type="button" id="nclassC" class="btn btn-primary">Polluted</button>-->
 
-  <label class="radio-inline"><input type="radio" name="optradio" id="optradio1" value="2019" checked>2019</label>
-  <label class="radio-inline"><input type="radio" name="optradio" id="optradio2" value="2013">2013</label>
-
-  </div>
-  
-  <select id="riv_dropdown" name="riv_dropdown" class="dropdown">
-      <option value="0">All Rivers</option>
-      <option value="1">Ganga</option>
-      <option value="2">Cauvery</option>
-      <option value="3">Beas</option>
-      <option value="4">Godavari</option>
-      <option value="5">Sutlej</option>
-      <option value="6">Yamuna</option>
-      <option value="7">Mahanadi</option>
-      <option value="8">Krishna</option>
-      <option value="9">Brahmani</option>
-      <option value="10">Gomti</option>
-      <option value="11">Tapi</option>
-      <option value="12">Sone</option>
-      <option value="13">Tungabhadra</option>
-      <option value="14">Subarnarekha</option>
-  </select>
-  
 
   <!-- Display the map and title with HTML division tags  -->
   <div id="map-title">River Tracker</div>
@@ -182,120 +152,11 @@
         }
       });
 
-
-      $.getJSON("river_list_13Mar.json",function(riv_list)  {
-        $.each(riv_list, function (key, val)  {
-          for (let year_list = 2019; year_list>2012; year_list=year_list-6) {
-            var layer_name_nc = 'river'+val.no+'nc_'+year_list;
-            var layer_name_c = 'river'+val.no+'c_'+year_list;
-            var riv = val.river_select;
-            var riv_condition = val.river_condition;
-            var notgroupC_year_temp = L.geoJson(data, {
-              filter: function(feature, layer)  {
-                return (feature.properties.group == "NOT Class C" && feature.properties.Year == year_list && (feature.properties.river == riv_condition));
-              },
-              pointToLayer: function(feature, latlng) {
-                return L.circleMarker(latlng, redLayerStyle);
-              },
-              onEachFeature: function (feature, layer) {
-                layer.bindPopup('<font color="red"><h4><u>River: '+feature.properties.river+'</h4> </u><h4>Location: '+feature.properties.Title+'</h4><p><h4> Year:'+feature.properties.Year+'</p></h4></font>');
-              }
-            }); 
-            var groupC_year_temp = L.geoJson(data, {
-              filter: function(feature, layer)  {
-                return (feature.properties.group == "Class C" && feature.properties.Year == year_list && (feature.properties.river == riv_condition));
-              },
-              pointToLayer: function(feature, latlng) {
-                return L.circleMarker(latlng, blueLayerStyle);
-              },
-              onEachFeature: function (feature, layer) {
-                layer.bindPopup('<font color="blue"><h4><u>River: '+feature.properties.river+'</h4> </u><h4>Location: '+feature.properties.Title+'</h4><p><h4> Year:'+feature.properties.Year+'</p></h4></font>');
-              }
-            });
-            riv_layers[layer_name_nc] = notgroupC_year_temp;
-            riv_layers[layer_name_c] = groupC_year_temp;
-          }
-        });
-      });
-
       layers.notgroupC_2019 = notgroupC_2019;
       layers.groupC_2019 = groupC_2019;
       layers.notgroupC_2013 = notgroupC_2013;
       layers.groupC_2013 = groupC_2013;
 
-      // The JavaScript below is for buttons to view Type of Station based on Pollution Level
-
-
-      $("input[name='optradio']").click(function(e) {
-          var val = e.target.value;
-          var layerName1 = 'notgroupC_'+val;
-          var layerName2 = 'groupC_'+val;
-          map.removeLayer(notgroupC_2013);
-          map.removeLayer(groupC_2013);
-          map.removeLayer(notgroupC_2019);
-          map.removeLayer(groupC_2019);
-          for (let k = 1; k < 15; k++)  {
-            var name1 = 'river' + k + 'nc_2019';
-            var name2 = 'river' + k + 'c_2019';
-            var name3 = 'river' + k + 'nc_2013';
-            var name4 = 'river' + k + 'c_2013';
-            map.removeLayer(riv_layers[name1]);
-            map.removeLayer(riv_layers[name2]);
-            map.removeLayer(riv_layers[name3]);
-            map.removeLayer(riv_layers[name4]);
-          }
-          if($('#riv_dropdown :selected').attr('value') !== "0"){
-              var sel = $('#riv_dropdown :selected').attr('value');
-              var l1 = 'river'+sel+'nc_'+val;
-              var l2 = 'river'+sel+'c_'+val;
-              map.removeLayer(notgroupC_2013);
-              map.removeLayer(groupC_2013);
-              map.removeLayer(notgroupC_2019);
-              map.removeLayer(groupC_2019);
-              riv_layers[l1].addTo(map);
-              riv_layers[l2].addTo(map);
-          }
-          else  {
-              map.removeLayer(notgroupC_2013);
-              map.removeLayer(groupC_2013);
-              map.removeLayer(notgroupC_2019);
-              map.removeLayer(groupC_2019);
-              layers[layerName1].addTo(map);
-              layers[layerName2].addTo(map);
-          }
-
-          $('select[name="riv_dropdown"]').change(function(){
-            for (let k = 1; k < 15; k++)  {
-              var name1 = 'river' + k + 'nc_2019';
-              var name2 = 'river' + k + 'c_2019';
-              var name3 = 'river' + k + 'nc_2013';
-              var name4 = 'river' + k + 'c_2013';
-              map.removeLayer(riv_layers[name1]);
-              map.removeLayer(riv_layers[name2]);
-              map.removeLayer(riv_layers[name3]);
-              map.removeLayer(riv_layers[name4]);
-            }
-            if ($(this).val() !== "0"){
-                var sel = $(this).val();
-                var l1 = 'river'+sel+'nc_'+val;
-                var l2 = 'river'+sel+'c_'+val;
-                map.removeLayer(notgroupC_2013);
-                map.removeLayer(groupC_2013);
-                map.removeLayer(notgroupC_2019);
-                map.removeLayer(groupC_2019);
-                riv_layers[l1].addTo(map);
-                riv_layers[l2].addTo(map);
-             }
-            else  {
-                map.removeLayer(notgroupC_2013);
-                map.removeLayer(groupC_2013);
-                map.removeLayer(notgroupC_2019);
-                map.removeLayer(groupC_2019);
-                layers[layerName1].addTo(map);
-                layers[layerName2].addTo(map);
-            }        
-          });
-      });
     });
   });
    
